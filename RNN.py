@@ -52,15 +52,3 @@ if __name__ == '__main__':
   # while c is not None:
   #   i = f.createInputVector(c)
   #   c = f.readChar()
-
-
-for t in range len(y):
-  dLdU = np.zeros(self.W_xh.shape)
-  dLdV = np.zeros(self.W_ho.shape)
-  dLdW = np.zeros(self.w_hh.shape)
-
-  delta_o = output
-  dLdV = outer of delta_out and softmax output
-  delta_t = W_ho dot delta_out * (1 - softmax_output**2)
-
-  for step in range (t+1, max(0, t - seq_length)):
