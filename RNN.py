@@ -19,16 +19,37 @@ class RNN:
     #recurrent connection in the hidden
     self.W_hh = np.random.uniform(-np.sqrt(1./num_hidden), np.sqrt(1./num_hidden), (num_hidden, num_hidden))
 
+  def loss():
+    return -1
 
   def forwardProp(self, x):
+    T = len(x)
+
+    hidden = np.zeros((T+1, self.num_hidden))
+    hidden[-1] = np.zeros(self.num_hidden)
+
+    out = np.zeros((T, self.))
     return 0
 
-  def bptt(self, output, softmax_output):
-    dLdU = np.zeros(self.W_xh.shape)
-    dLdV = np.zeros(self.W_ho.shape)
-    dLdW = np.zeros(self.w_hh.shape)
+  def bptt(self, output, hidden, x, y):
+    T = len(y)
+    dLdW_xh = np.zeros(self.W_xh.shape)
+    dLdW_ho = np.zeros(self.W_ho.shape)
+    dLdW_hh = np.zeros(self.w_hh.shape)
 
-    delta_out = output
+    delta_out = output - y
+
+    for t in np.arange(T)[::-1]:
+      dLdW_ho += np.outer(delta_out[t], hidden[t].T)
+      delta_t = np.dot(W_ho.T, delta_out[t]) * (1 - (hidden[t] ** 2))
+
+      for step in np.arange(max(0, t- self.seq_length), t+1)[::-1]:
+        dLdW_hh += np.outer(delta_t, hidden[s-1])
+        dLdW_xh[:,x[step]] += delta_t
+
+        delta_t = np.dot(W_hh.T, delta_t) * (1 - (hidden[step-1] ** 2))
+    
+    return dLdW_xh, dLdW_ho, dLdW_hh 
 
   def predict(self, x):
     out, hidden_states = self.forwardProp(x)
