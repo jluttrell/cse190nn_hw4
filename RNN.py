@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import time
 
 num_chars = 256
 
@@ -80,7 +81,8 @@ def train(model, x, lr, sequence_len, num_epochs, print_freq):
   for epoch in range(num_epochs):
     i = 0
     if epoch % print_freq == 0:
-      print 'epoch ', epoch 
+      print time.strftime("%Y-%m-%d %H:%M:%S"),
+      print ('\tepoch #%d' %epoch) 
     while (i+1+sequence_len) < len(x):
       model.sgd_step(x[i:i+sequence_len],x[i+1:i+1+sequence_len], lr)
       i += sequence_len
@@ -101,7 +103,7 @@ def createX(filename):
       break
     x.append(ord(c))
     c = f.read(1)
-  print ('Input contains %d characters' %len(x))
+  print ('Input contains %d characters\n' %len(x))
   if len(x) != filesize:
     print 'WARNING: Not all characters from file were read'
   return x
@@ -117,12 +119,13 @@ def generate(model, start, length):
 
 def main():
 
-  ##### PARAMETERS #####
+  ########## PARAMETERS ##########
+
   filename = 'minutemysteries.txt'
   hidden_size = 150
   temp = 1
   learning_rate = 0.1
-  sequence_len = 15
+  sequence_len = 10
   num_epochs = 5
   print_freq = 1
 
@@ -132,9 +135,9 @@ def main():
   #how many characters to generate including start
   gen_length = 100
 
-  ##### END PARAMETERS #####
+  ########## END PARAMETERS ##########
 
-  print 'Training...'
+  print '\nTraining...'
   print ('hidden_size = %d, learning_rate = %f, sequence_len = %d, num_epochs = %d' \
     %(hidden_size, learning_rate, sequence_len, num_epochs))
 
@@ -142,7 +145,7 @@ def main():
   net = RNN(hidden_size, temp)
   train(net, x, learning_rate, sequence_len, num_epochs, print_freq)
 
-  print ('Generating text of length %d' %gen_length)
+  print ('\nGenerating text of length %d' %gen_length)
   gen = generate(net, start, gen_length)
 
   #convert ascii # to char
