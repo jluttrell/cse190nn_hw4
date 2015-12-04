@@ -125,7 +125,7 @@ def main():
   hidden_size = 150
   temp = 1
   learning_rate = 0.1
-  sequence_len = 10
+  sequence_len = 15
   num_epochs = 5
   print_freq = 1
 
@@ -137,7 +137,7 @@ def main():
 
   ########## END PARAMETERS ##########
 
-  print '\nTraining...'
+  print 'Training...'
   print ('hidden_size = %d, learning_rate = %f, sequence_len = %d, num_epochs = %d' \
     %(hidden_size, learning_rate, sequence_len, num_epochs))
 
@@ -146,6 +146,7 @@ def main():
   train(net, x, learning_rate, sequence_len, num_epochs, print_freq)
 
   print ('\nGenerating text of length %d' %gen_length)
+
   gen = generate(net, start, gen_length)
 
   #convert ascii # to char
