@@ -116,27 +116,32 @@ def generate(model, start, length):
   return text
 
 def main():
+
+  ##### PARAMETERS #####
   filename = 'minutemysteries.txt'
-  x = createX(filename)
-
-  hidden_size = 200
+  hidden_size = 150
   temp = 1
-  net = RNN(hidden_size, temp)
-
   learning_rate = 0.1
-  sequence_len = 10
+  sequence_len = 15
   num_epochs = 5
   print_freq = 1
+
+  #start character of generated text
+  start = ord('A')
+  #start = random.randint(0,127)
+  #how many characters to generate including start
+  gen_length = 100
+
+  ##### END PARAMETERS #####
+
   print 'Training...'
   print ('hidden_size = %d, learning_rate = %f, sequence_len = %d, num_epochs = %d' \
     %(hidden_size, learning_rate, sequence_len, num_epochs))
+
+  x = createX(filename)
+  net = RNN(hidden_size, temp)
   train(net, x, learning_rate, sequence_len, num_epochs, print_freq)
 
-  #start character of generated text
-  #start = ord('a')
-  start = random.randint(0,127)
-  #how many characters to generate including start
-  gen_length = 50
   print ('Generating text of length %d' %gen_length)
   gen = generate(net, start, gen_length)
 
