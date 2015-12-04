@@ -1,12 +1,11 @@
 from ReadFile import ReadFile
-from Functions import *
+import numpy as np
 
 class RNN:
 
   num_chars = 256
 
-  def __init__(self, filename, num_hidden, seq_length, temp):
-    self.text = ReadFile(filename)
+  def __init__(self, num_hidden, seq_length, temp):
 
     self.num_hidden = num_hidden
     self.seq_length = seq_length
@@ -61,7 +60,7 @@ class RNN:
     return str(unichr(ascii_number))
 
   def train(self, readfile):
-    return 0
+    return -1
 
 def softmax(a,temp):
   numer = np.exp(a/temp)
@@ -69,9 +68,12 @@ def softmax(a,temp):
   return out
 
 def main():
-  net = RNN('infile.txt', 10, 10, 1)
-  net.train(f)
-  net.test()
+  text = ReadFile('infile.txt')
+  x = text.createX()
+  hidden_size = 10
+  sequence_len = 10
+  temp = 1
+  net = RNN(hidden_size, sequence_len, temp)
 
   print "done"
 
