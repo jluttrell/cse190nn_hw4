@@ -63,8 +63,11 @@ class RNN:
 
   def predict(self, x):
     out, hidden_states = self.forwardProp(x)
-    ascii_number = np.argmax(out, axis=1)
-    return ascii_number[0]
+    #ascii_number = np.argmax(out, axis=1)
+    ascii_number = np.argmax(out[-1])
+    print out
+    #return ascii_number[0]
+    return ascii_number
 
   def sgd_step(self, x, y, lr):
     dLdW_xh, dLdW_ho, dLdW_hh = self.bptt(x,y)
@@ -74,10 +77,10 @@ class RNN:
 
 ### End RNN
 
-def train(model, x, lr, sequence_len,num_epochs):
+def train(model, x, lr, sequence_len, num_epochs, print_freq):
   for epoch in range(num_epochs):
     i = 0
-    if epoch % 10 == 0:
+    if epoch % print_freq == 0:
       print 'epoch ', epoch 
     while (i+1+sequence_len) < len(x):
       model.sgd_step(x[i:i+sequence_len],x[i+1:i+1+sequence_len], lr)
@@ -89,47 +92,56 @@ def softmax(a,temp):
   return out
 
 def createX(filename):
+  filesize = %len(open(filename).read())
+  print ('File has %d bytes' %filesize)
   f = open(filename)
   x = []
   c = f.read(1)
-
   while c is not None:
     if len(c) == 0:
       break
     x.append(ord(c))
     c = f.read(1)
+  print ('Input contains %d characters' %len(x))
+  if len(x) != filesize:
+    print 'WARNING: Not all characters from file were read'
   return x
 
-def generate(model, length):
+def generate(model, start, length):
   text = []
-  start = random.randint(0,127)
   text.append(start)
 
   for i in range(length-1):
     next_char = model.predict(text)
     text.append(next_char)
-
   return text
 
 def main():
   filename = 'minutemysteries.txt'
   x = createX(filename)
 
-  hidden_size = 10
+  hidden_size = 100
   temp = 1
   net = RNN(hidden_size, temp)
 
   learning_rate = 0.1
   sequence_len = 20
-  num_epochs = 1
-
+  num_epochs = 5
+  print_freq = 1
   print 'Training...'
-  train(net, x, learning_rate, sequence_len, num_epochs)
+  train(net, x, learning_rate, sequence_len, num_epochs, print_freq)
 
   print 'Generating text...'
-  gen = generate(net, 10)
+  #start character of generated text
+  #start = ord('a')
+  start = random.randint(0,127)
+  #how many characters to generate including start
+  gen_length = 20
+  gen = generate(net, start, gen_length)
+
   #convert ascii # to char
   gen = [str(unichr(x)) for x in gen]
+
   #join list of chars and print
   print 'Generated text: ',
   print ''.join(gen)
