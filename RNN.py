@@ -34,23 +34,26 @@ class RNN:
       out[t] = softmax(np.dot(self.W_ho, s[t]), self.temp)
     return out, hidden
 
-  def bptt(self, output, hidden, x, y):
+  def bptt(self, x, y):
     T = len(y)
+    
+    o, h = self.forwardProp(x)
+
     dLdW_xh = np.zeros(self.W_xh.shape)
     dLdW_ho = np.zeros(self.W_ho.shape)
     dLdW_hh = np.zeros(self.w_hh.shape)
 
-    delta_out = output - y
+    delta_out = o - y
 
     for t in np.arange(T)[::-1]:
-      dLdW_ho += np.outer(delta_out[t], hidden[t].T)
-      delta_t = np.dot(W_ho.T, delta_out[t]) * (1 - (hidden[t] ** 2))
+      dLdW_ho += np.outer(delta_out[t], h[t].T)
+      delta_t = np.dot(W_ho.T, delta_out[t]) * (1 - (h[t] ** 2))
 
-      for step in np.arange(max(0, t- self.seq_length), t+1)[::-1]:
-        dLdW_hh += np.outer(delta_t, hidden[s-1])
+      for step in np.arange(max(0, t - self.seq_length), t+1)[::-1]:
+        dLdW_hh += np.outer(delta_t, h[s-1])
         dLdW_xh[:,x[step]] += delta_t
 
-        delta_t = np.dot(W_hh.T, delta_t) * (1 - (hidden[step-1] ** 2))
+        delta_t = np.dot(W_hh.T, delta_t) * (1 - (h[step-1] ** 2))
     
     return dLdW_xh, dLdW_ho, dLdW_hh
 
@@ -58,6 +61,12 @@ class RNN:
     out, hidden_states = self.forwardProp(x)
     ascii_number = np.argmax(out, axis=1)
     return str(unichr(ascii_number))
+
+  def sdg_step(self, x, y, lr):
+    dLdW_xh, dLdW_ho, dLdW_hh = self.bptt(x,y)
+    self.W_xh -= dLdW_xh
+    self.W_ho -= dLdW_ho
+    self.W_hh -= dLdW_hh
 
   def train(self, readfile):
     return -1
