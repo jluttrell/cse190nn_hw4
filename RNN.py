@@ -28,8 +28,12 @@ class RNN:
     hidden = np.zeros((T+1, self.num_hidden))
     hidden[-1] = np.zeros(self.num_hidden)
 
-    out = np.zeros((T, self.))
-    return 0
+    out = np.zeros((T, num_chars))
+
+    for t in np.arange(T):
+      hidden[t] = np.tanh(self.W_xh[:,x[t]] + np.dot(self.W_hh, hidden[t-1]))
+      out[t] = softmax(np.dot(self.W_ho, s[t]), self.temp)
+    return out, hidden
 
   def bptt(self, output, hidden, x, y):
     T = len(y)
@@ -49,7 +53,7 @@ class RNN:
 
         delta_t = np.dot(W_hh.T, delta_t) * (1 - (hidden[step-1] ** 2))
     
-    return dLdW_xh, dLdW_ho, dLdW_hh 
+    return dLdW_xh, dLdW_ho, dLdW_hh
 
   def predict(self, x):
     out, hidden_states = self.forwardProp(x)
@@ -58,6 +62,11 @@ class RNN:
 
   def train(self, readfile):
     return 0
+
+def softmax(a,temp):
+  numer = np.exp(a/temp)
+  out = numer / numer.sum()
+  return out
 
 def main():
   net = RNN('infile.txt', 10, 10, 1)
