@@ -65,7 +65,6 @@ class RNN:
     out, hidden_states = self.forwardProp(x)
     #ascii_number = np.argmax(out, axis=1)
     ascii_number = np.argmax(out[-1])
-    print out
     #return ascii_number[0]
     return ascii_number
 
@@ -92,7 +91,7 @@ def softmax(a,temp):
   return out
 
 def createX(filename):
-  filesize = %len(open(filename).read())
+  filesize = len(open(filename).read())
   print ('File has %d bytes' %filesize)
   f = open(filename)
   x = []
@@ -120,38 +119,35 @@ def main():
   filename = 'minutemysteries.txt'
   x = createX(filename)
 
-  hidden_size = 100
+  hidden_size = 200
   temp = 1
   net = RNN(hidden_size, temp)
 
   learning_rate = 0.1
-  sequence_len = 20
+  sequence_len = 10
   num_epochs = 5
   print_freq = 1
   print 'Training...'
+  print ('hidden_size = %d, learning_rate = %f, sequence_len = %d, num_epochs = %d' \
+    %(hidden_size, learning_rate, sequence_len, num_epochs))
   train(net, x, learning_rate, sequence_len, num_epochs, print_freq)
 
-  print 'Generating text...'
   #start character of generated text
   #start = ord('a')
   start = random.randint(0,127)
   #how many characters to generate including start
-  gen_length = 20
+  gen_length = 50
+  print ('Generating text of length %d' %gen_length)
   gen = generate(net, start, gen_length)
 
   #convert ascii # to char
   gen = [str(unichr(x)) for x in gen]
 
   #join list of chars and print
-  print 'Generated text: ',
+  print 'Generated text: '
   print ''.join(gen)
 
   print "\ndone!"
 
 if __name__ == '__main__':
   main()
-
-  # c = f.readChar()
-  # while c is not None:
-  #   i = f.createInputVector(c)
-  #   c = f.readChar()
