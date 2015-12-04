@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 num_chars = 256
 
@@ -63,7 +64,7 @@ class RNN:
   def predict(self, x):
     out, hidden_states = self.forwardProp(x)
     ascii_number = np.argmax(out, axis=1)
-    return str(unichr(ascii_number))
+    return ascii_number[0]
 
   def sgd_step(self, x, y, lr):
     dLdW_xh, dLdW_ho, dLdW_hh = self.bptt(x,y)
@@ -97,6 +98,17 @@ def createX(filename):
     c = f.read(1)
   return x
 
+def generate(model, length):
+  text = []
+  start = random.randint(0,127)
+  text.append(start)
+
+  for i in range(length):
+    next_char = model.predict(text)
+    text.append(next_char)
+
+  return text
+
 def main():
   filename = 'infile.txt'
   x = createX(filename)
@@ -109,6 +121,10 @@ def main():
   num_epochs = 100
   learning_rate = 0.1
   train(net, x, learning_rate, sequence_len, 100)
+
+  gen = generate(net, 10)
+  gen = [str(unichr(x)) for x in gen]
+  print ''.join(gen)
 
   print "done"
 
