@@ -2,13 +2,15 @@ from ReadFile import ReadFile
 import numpy as np
 
 class RNN:
-
+  '''
+  Character level recurrent neural network framework adapted from code from WildML blog
+  (www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-1-introduction-to-rnns/)
+  '''
   num_chars = 256
 
-  def __init__(self, num_hidden, seq_length, temp):
+  def __init__(self, num_hidden, temp):
 
     self.num_hidden = num_hidden
-    self.seq_length = seq_length
     self.temp = temp
 
     #input to hidden
@@ -49,7 +51,7 @@ class RNN:
       dLdW_ho += np.outer(delta_out[t], h[t].T)
       delta_t = np.dot(W_ho.T, delta_out[t]) * (1 - (h[t] ** 2))
 
-      for step in np.arange(max(0, t - self.seq_length), t+1)[::-1]:
+      for step in np.arange(max(0, t), t+1)[::-1]:
         dLdW_hh += np.outer(delta_t, h[s-1])
         dLdW_xh[:,x[step]] += delta_t
 
@@ -68,8 +70,12 @@ class RNN:
     self.W_ho -= dLdW_ho
     self.W_hh -= dLdW_hh
 
-  def train(self, readfile):
-    return -1
+### End RNN
+
+def train(model, x, y, lr, num_epochs):
+  for epoch in range(num_epochs):
+    for i in range(len(y)):
+      model.sgd_step(x[],y[], lr)
 
 def softmax(a,temp):
   numer = np.exp(a/temp)
@@ -78,7 +84,7 @@ def softmax(a,temp):
 
 def main():
   text = ReadFile('infile.txt')
-  x = text.createX()
+  x,y = text.createXY()
   hidden_size = 10
   sequence_len = 10
   temp = 1
