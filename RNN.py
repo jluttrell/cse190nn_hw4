@@ -68,18 +68,20 @@ class RNN:
 
   def sgd_step(self, x, y, lr):
     dLdW_xh, dLdW_ho, dLdW_hh = self.bptt(x,y)
-    self.W_xh -= dLdW_xh
-    self.W_ho -= dLdW_ho
-    self.W_hh -= dLdW_hh
+    self.W_xh -= lr*dLdW_xh
+    self.W_ho -= lr*dLdW_ho
+    self.W_hh -= lr*dLdW_hh
 
 ### End RNN
 
 def train(model, x, lr, sequence_len,num_epochs):
   for epoch in range(num_epochs):
     i = 0
+    if epoch % 10 == 0:
+      print 'epoch ', epoch 
     while (i+1+sequence_len) < len(x):
       model.sgd_step(x[i:i+sequence_len],x[i+1:i+1+sequence_len], lr)
-      i += 1
+      i += sequence_len
 
 def softmax(a,temp):
   numer = np.exp(a/temp)
@@ -103,30 +105,36 @@ def generate(model, length):
   start = random.randint(0,127)
   text.append(start)
 
-  for i in range(length):
+  for i in range(length-1):
     next_char = model.predict(text)
     text.append(next_char)
 
   return text
 
 def main():
-  filename = 'infile.txt'
+  filename = 'minutemysteries.txt'
   x = createX(filename)
 
   hidden_size = 10
   temp = 1
   net = RNN(hidden_size, temp)
 
-  sequence_len = 10
-  num_epochs = 100
   learning_rate = 0.1
-  train(net, x, learning_rate, sequence_len, 100)
+  sequence_len = 20
+  num_epochs = 1
 
+  print 'Training...'
+  train(net, x, learning_rate, sequence_len, num_epochs)
+
+  print 'Generating text...'
   gen = generate(net, 10)
+  #convert ascii # to char
   gen = [str(unichr(x)) for x in gen]
+  #join list of chars and print
+  print 'Generated text: ',
   print ''.join(gen)
 
-  print "done"
+  print "\ndone!"
 
 if __name__ == '__main__':
   main()
