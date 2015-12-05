@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import time
+import matplotlib.pyplot as plt
 
 num_chars = 256
 
@@ -9,11 +10,8 @@ class RNN:
   Character level recurrent neural network framework adapted from code from WildML blog
   (www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-1-introduction-to-rnns/)
   '''
-
   def __init__(self, num_hidden):
-
     self.num_hidden = num_hidden
-
     #input to hidden
     self.W_xh = np.random.uniform(-np.sqrt(1./num_chars), np.sqrt(1./num_chars), (num_hidden, num_chars))
     #hidden to output
@@ -32,12 +30,9 @@ class RNN:
 
   def forwardProp(self, x, temp=1):
     T = len(x)
-
     hidden = np.zeros((T+1, self.num_hidden))
     hidden[-1] = np.zeros(self.num_hidden)
-
     out = np.zeros((T, num_chars))
-
     for t in np.arange(T):
       hidden[t] = np.tanh(self.W_xh[:,x[t]] + np.dot(self.W_hh, hidden[t-1]))
       out[t] = softmax(np.dot(self.W_ho, hidden[t]), temp)
@@ -45,26 +40,19 @@ class RNN:
 
   def bptt(self, x, y):
     T = len(y)
-    
     o, h = self.forwardProp(x)
-
     dLdW_xh = np.zeros(self.W_xh.shape)
     dLdW_ho = np.zeros(self.W_ho.shape)
     dLdW_hh = np.zeros(self.W_hh.shape)
-
     delta_out = o
     delta_out[np.arange(len(y)),y] -= 1
-
     for t in np.arange(T)[::-1]:
       dLdW_ho += np.outer(delta_out[t], h[t].T)
       delta_t = np.dot(self.W_ho.T, delta_out[t]) * (1 - (h[t] ** 2))
-
       for step in np.arange(max(0, t), t+1)[::-1]:
         dLdW_hh += np.outer(delta_t, h[step-1])
         dLdW_xh[:,x[step]] += delta_t
-
         delta_t = np.dot(self.W_hh.T, delta_t) * (1 - (h[step-1] ** 2))
-    
     return dLdW_xh, dLdW_ho, dLdW_hh
 
   def predict(self, x, temp=1):
@@ -76,23 +64,24 @@ class RNN:
 
   def sgd_step(self, x, y, lr):
     dLdW_xh, dLdW_ho, dLdW_hh = self.bptt(x,y)
-
     self.W_xh -= lr*np.clip(dLdW_xh, -5, 5)
     self.W_ho -= lr*np.clip(dLdW_ho, -5, 5)
     self.W_hh -= lr*np.clip(dLdW_hh, -5, 5)
-
-
 ### End RNN
 
 def train(model, x, lr, sequence_len, num_epochs, print_freq):
+  graph = []
   for epoch in range(num_epochs):
     i = 0
     if epoch % print_freq == 0:
       print time.strftime("%Y-%m-%d %H:%M:%S"),
-      print ('\tepoch #%d: \tloss = %f' %(epoch, model.loss(x[:1000])))
+      loss = model.loss(x[:1000])
+      graph.append(loss)
+      print ('\tepoch #%d: \tloss = %f' %(epoch, loss))
     while (i+1+sequence_len) < len(x):
       model.sgd_step(x[i:i+sequence_len],x[i+1:i+1+sequence_len], lr)
       i += sequence_len
+  return graph
 
 def softmax(a,temp):
   numer = np.exp(a/temp)
@@ -140,7 +129,7 @@ def main():
   temp = 1
   learning_rate = 0.01
   sequence_len = 50
-  num_epochs = 5
+  num_epochs = 25
   print_freq = 1
   temp = 1
 
@@ -160,8 +149,11 @@ def main():
     %(hidden_size, learning_rate, sequence_len, num_epochs))
 
   net = RNN(hidden_size)
-  train(net, x, learning_rate, sequence_len, num_epochs, print_freq)
-
+  g = train(net, x, learning_rate, sequence_len, num_epochs, print_freq)
+  plt.plot(g)
+  plt.xlabel('epoch')
+  plt.ylabel('loss')
+  plt.show()
   print ('\nGenerating text of length %d' %gen_length)
 
   gen = generate(net, start, gen_length, temp, sequence_len)
