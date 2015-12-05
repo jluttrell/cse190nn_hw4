@@ -85,14 +85,19 @@ class RNN:
 ### End RNN
 
 def train(model, x, lr, sequence_len, num_epochs, print_freq):
+  text = []
   for epoch in range(num_epochs):
     i = 0
     if epoch % print_freq == 0:
       print time.strftime("%Y-%m-%d %H:%M:%S"),
-      print ('\tepoch #%d: \tloss = %f' %(epoch, model.loss(x[:1000])))
+      #loss = model.loss(x[:1000])
+      text.append(generateBii(model, 25, 1))
+      loss = 1
+      print ('\tepoch #%d: \tloss = %f' %(epoch, loss))
     while (i+1+sequence_len) < len(x):
       model.sgd_step(x[i:i+sequence_len],x[i+1:i+1+sequence_len], lr)
       i += sequence_len
+  return text
 
 def softmax(a,temp):
   numer = np.exp(a/temp)
@@ -131,6 +136,22 @@ def generate(model, start, length, temp, sequence_len):
     text.append(next_char)
   return text
 
+def generateBii(model, length, temp):
+  f = open('minutemysteries.txt')
+  gen = []
+  text = []
+  c = f.read(1)
+  for i in range(1000):
+    if len(c) == 0:
+      break
+    text.append(ord(c))
+    c = f.read(1)
+
+  for i in range(length-1):
+    next_char = model.predict(text, temp)
+    gen.append(next_char)
+  return gen
+
 def main():
 
   ########## PARAMETERS ##########
@@ -140,8 +161,8 @@ def main():
   temp = 1
   learning_rate = 0.01
   sequence_len = 50
-  num_epochs = 5
-  print_freq = 1
+  num_epochs = 25
+  print_freq = 5
   temp = 1
 
   #start character of generated text
@@ -160,7 +181,12 @@ def main():
     %(hidden_size, learning_rate, sequence_len, num_epochs))
 
   net = RNN(hidden_size)
-  train(net, x, learning_rate, sequence_len, num_epochs, print_freq)
+  t = train(net, x, learning_rate, sequence_len, num_epochs, print_freq)
+
+  for i in range(len(t)):
+    print i
+    sent = [str(chr(x)) for x in t[i]]
+    print ''.join(sent)
 
   print ('\nGenerating text of length %d' %gen_length)
 
