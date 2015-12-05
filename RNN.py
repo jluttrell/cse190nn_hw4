@@ -149,6 +149,7 @@ def generateBii(model, length, temp):
 
   for i in range(length-1):
     next_char = model.predict(text, temp)
+    text.append(next_char)
     gen.append(next_char)
   return gen
 
