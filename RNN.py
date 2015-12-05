@@ -21,8 +21,15 @@ class RNN:
     #recurrent connection in the hidden
     self.W_hh = np.random.uniform(-np.sqrt(1./num_hidden), np.sqrt(1./num_hidden), (num_hidden, num_hidden))
 
-  def loss(self):
-    return -1
+  def loss(self,x,sequence_len):
+    N = len(x)
+    L = 0
+    for i in range(N-1):
+      beg = max(0, i-sequence_len)
+      end = i+1
+      pred = self.predict(x[beg:end])
+      L += x[i+1]*np.log(pred)
+    return -L/N
 
   def forwardProp(self, x, temp=1):
     T = len(x)
@@ -61,7 +68,7 @@ class RNN:
     
     return dLdW_xh, dLdW_ho, dLdW_hh
 
-  def predict(self, x, temp):
+  def predict(self, x, temp=1):
     out, hidden_states = self.forwardProp(x, temp)
     #ascii_number = np.argmax(out, axis=1)
     ascii_number = np.argmax(out[-1])
@@ -83,7 +90,7 @@ def train(model, x, lr, sequence_len, num_epochs, print_freq):
     i = 0
     if epoch % print_freq == 0:
       print time.strftime("%Y-%m-%d %H:%M:%S"),
-      print ('\tepoch #%d: \tloss = %f' %(epoch, model.loss()))
+      print ('\tepoch #%d: \tloss = %f' %(epoch, model.loss(x[:1000], sequence_len)))
     while (i+1+sequence_len) < len(x):
       model.sgd_step(x[i:i+sequence_len],x[i+1:i+1+sequence_len], lr)
       i += sequence_len
@@ -96,14 +103,17 @@ def softmax(a,temp):
 def createX(filename):
   filesize = len(open(filename).read())
   print ('\nFile has %d bytes' %filesize)
+
   f = open(filename)
   x = []
   c = f.read(1)
+
   while c is not None:
     if len(c) == 0:
       break
     x.append(ord(c))
     c = f.read(1)
+
   print ('Input contains %d characters' %len(x))
   if len(x) != filesize:
     print 'WARNING: Not all characters from file were read'
@@ -130,16 +140,17 @@ def main():
   hidden_size = 100
   temp = 1
   learning_rate = 0.01
-  sequence_len = 100
-  num_epochs = 20
-  print_freq = 5
+  sequence_len = 50
+  num_epochs = 5
+  print_freq = 1
   temp = 1
 
   #start character of generated text
-  start = ord('A')
+  start = ord('P')
   #start = random.randint(32,58)
+
   #how many characters to generate including start
-  gen_length = 200
+  gen_length = 20
 
   ########## END PARAMETERS ##########
 
