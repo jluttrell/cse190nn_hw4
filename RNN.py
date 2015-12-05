@@ -111,12 +111,14 @@ def createX(filename):
   print ('There are %d unique characters\n' %unique)
   return x
 
-def generate(model, start, length, temp):
+def generate(model, start, length, temp, sequence_len):
   text = []
   text.append(start)
 
   for i in range(length-1):
-    next_char = model.predict(text, temp)
+    beg = max(0, len(text)-sequence_len)
+    end = len(text)
+    next_char = model.predict(text[beg:end], temp)
     text.append(next_char)
   return text
 
@@ -129,13 +131,13 @@ def main():
   temp = 1
   learning_rate = 0.01
   sequence_len = 100
-  num_epochs = 10
+  num_epochs = 20
   print_freq = 5
   temp = 1
 
   #start character of generated text
-  #start = ord('A')
-  start = random.randint(32,58)
+  start = ord('A')
+  #start = random.randint(32,58)
   #how many characters to generate including start
   gen_length = 200
 
@@ -152,7 +154,7 @@ def main():
 
   print ('\nGenerating text of length %d' %gen_length)
 
-  gen = generate(net, start, gen_length, temp)
+  gen = generate(net, start, gen_length, temp, sequence_len)
 
   #convert ascii # to char
   gen = [str(unichr(x)) for x in gen]
