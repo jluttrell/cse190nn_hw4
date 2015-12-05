@@ -21,17 +21,13 @@ class RNN:
     #recurrent connection in the hidden
     self.W_hh = np.random.uniform(-np.sqrt(1./num_hidden), np.sqrt(1./num_hidden), (num_hidden, num_hidden))
 
-  def loss(self,x,sequence_len):
-    N = len(x)
-    L = 0
-    for i in range(N-1):
-      beg = max(0, i-sequence_len)
-      end = i+1
-      pred = self.predict(x[beg:end])
-      if pred == 0:
-        pred = 0.00000000001
-      L += x[i+1]*np.log(pred)
-    return -L/N
+  def loss(self,x,N):
+    x = x[0:len(x)-1]
+    y = x[1:len(x)]
+    o, h = self.forwardProp(x)
+    correct_word_predictions = o[np.arange(len(y)), y]
+    L = -1 *np.sum(np.log(correct_word_predictions))
+    return L/N
 
   def forwardProp(self, x, temp=1):
     T = len(x)
@@ -92,7 +88,7 @@ def train(model, x, lr, sequence_len, num_epochs, print_freq):
     i = 0
     if epoch % print_freq == 0:
       print time.strftime("%Y-%m-%d %H:%M:%S"),
-      print ('\tepoch #%d: \tloss = %f' %(epoch, model.loss(x[:20000], sequence_len)))
+      print ('\tepoch #%d: \tloss = %f' %(epoch, model.loss(x[:1000], 1000)))
     while (i+1+sequence_len) < len(x):
       model.sgd_step(x[i:i+sequence_len],x[i+1:i+1+sequence_len], lr)
       i += sequence_len
