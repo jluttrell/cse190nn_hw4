@@ -70,9 +70,11 @@ class RNN:
 
   def sgd_step(self, x, y, lr):
     dLdW_xh, dLdW_ho, dLdW_hh = self.bptt(x,y)
-    self.W_xh -= lr*dLdW_xh
-    self.W_ho -= lr*dLdW_ho
-    self.W_hh -= lr*dLdW_hh
+
+    self.W_xh -= lr*np.clip(dLdW_xh, -5, 5)
+    self.W_ho -= lr*np.clip(dLdW_ho, -5, 5)
+    self.W_hh -= lr*np.clip(dLdW_hh, -5, 5)
+
 
 ### End RNN
 
@@ -81,7 +83,7 @@ def train(model, x, lr, sequence_len, num_epochs, print_freq):
     i = 0
     if epoch % print_freq == 0:
       print time.strftime("%Y-%m-%d %H:%M:%S"),
-      print ('\tepoch #%d: loss = %f' %(epoch, model.loss()))
+      print ('\tepoch #%d: \tloss = %f' %(epoch, model.loss()))
     while (i+1+sequence_len) < len(x):
       model.sgd_step(x[i:i+sequence_len],x[i+1:i+1+sequence_len], lr)
       i += sequence_len
@@ -127,8 +129,8 @@ def main():
   temp = 1
   learning_rate = 0.01
   sequence_len = 100
-  num_epochs = 50
-  print_freq = 10
+  num_epochs = 10
+  print_freq = 5
   temp = 1
 
   #start character of generated text
