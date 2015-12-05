@@ -21,7 +21,7 @@ class RNN:
     #recurrent connection in the hidden
     self.W_hh = np.random.uniform(-np.sqrt(1./num_hidden), np.sqrt(1./num_hidden), (num_hidden, num_hidden))
 
-  def loss():
+  def loss(self):
     return -1
 
   def forwardProp(self, x, temp=1):
@@ -81,7 +81,7 @@ def train(model, x, lr, sequence_len, num_epochs, print_freq):
     i = 0
     if epoch % print_freq == 0:
       print time.strftime("%Y-%m-%d %H:%M:%S"),
-      print ('\tepoch #%d' %epoch) 
+      print ('\tepoch #%d: loss = %f' %(epoch, model.loss()))
     while (i+1+sequence_len) < len(x):
       model.sgd_step(x[i:i+sequence_len],x[i+1:i+1+sequence_len], lr)
       i += sequence_len
@@ -93,7 +93,7 @@ def softmax(a,temp):
 
 def createX(filename):
   filesize = len(open(filename).read())
-  print ('File has %d bytes' %filesize)
+  print ('\nFile has %d bytes' %filesize)
   f = open(filename)
   x = []
   c = f.read(1)
@@ -126,24 +126,25 @@ def main():
   hidden_size = 100
   temp = 1
   learning_rate = 0.01
-  sequence_len = 10
-  num_epochs = 5
-  print_freq = 1
+  sequence_len = 100
+  num_epochs = 50
+  print_freq = 10
   temp = 1
 
   #start character of generated text
   #start = ord('A')
-  start = random.randint(0,127)
+  start = random.randint(32,58)
   #how many characters to generate including start
-  gen_length = 100
+  gen_length = 200
 
   ########## END PARAMETERS ##########
 
-  print '\nTraining...'
-  print ('hidden_size = %d, learning_rate = %f, sequence_len = %d, num_epochs = %d' \
+  x = createX(filename)
+
+  print 'Training...'
+  print ('hidden_size = %d, learning_rate = %f, sequence_len = %d, num_epochs = %d\n' \
     %(hidden_size, learning_rate, sequence_len, num_epochs))
 
-  x = createX(filename)
   net = RNN(hidden_size)
   train(net, x, learning_rate, sequence_len, num_epochs, print_freq)
 
