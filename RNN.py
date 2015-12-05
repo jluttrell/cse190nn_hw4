@@ -21,7 +21,8 @@ class RNN:
     #recurrent connection in the hidden
     self.W_hh = np.random.uniform(-np.sqrt(1./num_hidden), np.sqrt(1./num_hidden), (num_hidden, num_hidden))
 
-  def loss(self,x,N):
+  def loss(self,x):
+    N = len(x)
     x = x[0:len(x)-1]
     y = x[1:len(x)]
     o, h = self.forwardProp(x)
@@ -88,7 +89,7 @@ def train(model, x, lr, sequence_len, num_epochs, print_freq):
     i = 0
     if epoch % print_freq == 0:
       print time.strftime("%Y-%m-%d %H:%M:%S"),
-      print ('\tepoch #%d: \tloss = %f' %(epoch, model.loss(x[:1000], 1000)))
+      print ('\tepoch #%d: \tloss = %f' %(epoch, model.loss(x[:1000])))
     while (i+1+sequence_len) < len(x):
       model.sgd_step(x[i:i+sequence_len],x[i+1:i+1+sequence_len], lr)
       i += sequence_len
