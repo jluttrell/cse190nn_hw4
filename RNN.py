@@ -88,7 +88,7 @@ def train(model, x, lr, sequence_len, num_epochs, print_freq):
   text = []
   for epoch in range(num_epochs):
     i = 0
-    if epoch % print_freq == 0:
+    if (epoch % print_freq == 0) or (epoch == num_epochs - 1):
       print time.strftime("%Y-%m-%d %H:%M:%S"),
       #loss = model.loss(x[:1000])
       text.append(generateBii(model, x, 50, 1))
@@ -159,7 +159,6 @@ def main():
 
   filename = 'minutemysteries.txt'
   hidden_size = 100
-  temp = 1
   learning_rate = 0.01
   sequence_len = 50
   num_epochs = 25
@@ -171,7 +170,7 @@ def main():
   #start = random.randint(32,58)
 
   #how many characters to generate including start
-  gen_length = 20
+  gen_length = 200
 
   ########## END PARAMETERS ##########
 
@@ -186,7 +185,7 @@ def main():
 
   for i in range(len(t)):
     print i
-    sent = [str(chr(x)) for x in t[i]]
+    sent = [str(chr(a)) for a in t[i]]
     print ''.join(sent)
 
   print len(t)
@@ -197,6 +196,15 @@ def main():
   print ('\nGenerating text of length %d' %gen_length)
 
   gen = generate(net, start, gen_length, temp, sequence_len)
+
+  #convert ascii # to char
+  gen = [str(chr(x)) for x in gen]
+
+  #join list of chars and print
+  print 'Generated text: '
+  print ''.join(gen)
+
+  gen = generate(net, ord('A'), gen_length, temp, sequence_len)
 
   #convert ascii # to char
   gen = [str(chr(x)) for x in gen]
