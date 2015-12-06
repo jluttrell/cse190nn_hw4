@@ -91,7 +91,7 @@ def train(model, x, lr, sequence_len, num_epochs, print_freq):
     if epoch % print_freq == 0:
       print time.strftime("%Y-%m-%d %H:%M:%S"),
       #loss = model.loss(x[:1000])
-      text.append(generateBii(model, 25, 1))
+      text.append(generateBii(model, 50, 1))
       loss = 1
       print ('\tepoch #%d: \tloss = %f' %(epoch, loss))
     while (i+1+sequence_len) < len(x):
@@ -188,6 +188,11 @@ def main():
     print i
     sent = [str(chr(x)) for x in t[i]]
     print ''.join(sent)
+
+  print len(t)
+  last = generateBii(net, 50, 1)
+  sent = [str(chr(x)) for x in last]
+  print ''.join(sent)
 
   print ('\nGenerating text of length %d' %gen_length)
 
