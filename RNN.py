@@ -137,7 +137,6 @@ def main():
 
   filename = 'minutemysteries.txt'
   hidden_size = 100
-  temp = 1
   learning_rate = 0.01
   sequence_len = 50
   num_epochs = 5
