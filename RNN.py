@@ -190,8 +190,8 @@ def main():
     print ''.join(sent)
 
   print len(t)
-  last = generateBii(net, 50, 1)
-  sent = [str(chr(x)) for x in last]
+  last = generateBii(net, x, 50, 1)
+  sent = [str(chr(a)) for a in last]
   print ''.join(sent)
 
   print ('\nGenerating text of length %d' %gen_length)
