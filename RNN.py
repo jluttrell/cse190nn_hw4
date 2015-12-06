@@ -91,7 +91,7 @@ def train(model, x, lr, sequence_len, num_epochs, print_freq):
     if epoch % print_freq == 0:
       print time.strftime("%Y-%m-%d %H:%M:%S"),
       #loss = model.loss(x[:1000])
-      text.append(generateBii(model, 50, 1))
+      text.append(generateBii(model, x, 50, 1))
       loss = 1
       print ('\tepoch #%d: \tloss = %f' %(epoch, loss))
     while (i+1+sequence_len) < len(x):
@@ -136,17 +136,17 @@ def generate(model, start, length, temp, sequence_len):
     text.append(next_char)
   return text
 
-def generateBii(model, length, temp):
-  f = open('minutemysteries.txt')
-  gen = []
-  text = []
-  c = f.read(1)
-  for i in range(1000):
-    if len(c) == 0:
-      break
-    text.append(ord(c))
-    c = f.read(1)
-
+def generateBii(model, x, length, temp):
+  # f = open('minutemysteries.txt')
+  # gen = []
+  # text = []
+  # c = f.read(1)
+  # for i in range(5000):
+  #   if len(c) == 0:
+  #     break
+  #   text.append(ord(c))
+  #   c = f.read(1)
+  text = x[4000:9000]
   for i in range(length-1):
     next_char = model.predict(text, temp)
     text.append(next_char)
